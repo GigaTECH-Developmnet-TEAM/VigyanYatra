@@ -1,0 +1,3 @@
+[remote "origin"]
+	url = https://github.com/GigaTECH-Developmnet-TEAM/VigyanYatra.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
