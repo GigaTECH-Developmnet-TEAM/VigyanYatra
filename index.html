@@ -241,6 +241,43 @@ header{
   background:linear-gradient(180deg, var(--bg) 0%, transparent 100%);
   border-bottom:1px solid var(--glass-border);
 }
+/* ===== INDEPENDENCE DAY BANNER (auto-shows for a 36hr window around 15 Aug) ===== */
+.iday-banner{
+  position:relative;overflow:hidden;display:none;align-items:center;justify-content:center;gap:14px;
+  padding:10px 44px 10px 16px;
+  background:linear-gradient(90deg,#FF9933 0%,#FF9933 32%,#FFFFFF 32%,#FFFFFF 66%,#138808 66%,#138808 100%);
+}
+.iday-banner.show{display:flex;}
+.iday-banner .iday-text{
+  position:relative;z-index:2;font-family:var(--font-display);font-weight:700;font-size:13.5px;
+  color:#0a1830;text-shadow:0 1px 2px rgba(255,255,255,.5);display:flex;align-items:center;gap:8px;
+  text-align:center;
+}
+.iday-flag{width:22px;height:16px;flex-shrink:0;animation:flagWave 1.8s ease-in-out infinite;transform-origin:left center;}
+@keyframes flagWave{0%,100%{transform:skewY(0deg) rotate(0deg);}25%{transform:skewY(-3deg) rotate(1deg);}75%{transform:skewY(3deg) rotate(-1deg);}}
+.iday-close{
+  position:absolute;top:50%;right:12px;transform:translateY(-50%);z-index:3;
+  width:24px;height:24px;border-radius:50%;background:rgba(10,24,48,.15);border:none;
+  color:#0a1830;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.iday-close:hover{background:rgba(10,24,48,.3);}
+.iday-confetti{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
+.iday-confetti span{
+  position:absolute;top:-10px;width:6px;height:10px;opacity:.85;
+  animation:confettiFall linear infinite;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(-10px) rotate(0deg);opacity:0;}
+  10%{opacity:.9;}
+  100%{transform:translateY(60px) rotate(360deg);opacity:0;}
+}
+@media (prefers-reduced-motion: reduce){.iday-flag,.iday-confetti span{animation:none;}}
+@media(max-width:640px){
+  .iday-banner{padding:8px 38px 8px 12px;gap:8px;}
+  .iday-banner .iday-text{font-size:11px;gap:5px;}
+  .iday-flag{width:18px;height:13px;}
+}
+
 .news-ticker{
   display:flex;align-items:center;gap:0;
   background:linear-gradient(90deg,var(--navy-deep),var(--navy-mid));
@@ -1167,6 +1204,18 @@ footer{border-top:1px solid var(--glass-border);padding:60px 0 30px;background:v
       <button class="btn btn-primary" data-action="register">Register</button>
     </div>
   </nav>
+  <div class="iday-banner" id="idayBanner">
+    <div class="iday-confetti" id="idayConfetti"></div>
+    <svg class="iday-flag" viewBox="0 0 60 40" fill="none">
+      <rect y="0" width="60" height="13.3" fill="#FF9933"/>
+      <rect y="13.3" width="60" height="13.3" fill="#FFFFFF"/>
+      <rect y="26.6" width="60" height="13.3" fill="#138808"/>
+      <circle cx="30" cy="20" r="5" fill="none" stroke="#000080" stroke-width="0.6"/>
+      <circle cx="30" cy="20" r="0.8" fill="#000080"/>
+    </svg>
+    <div class="iday-text">🇮🇳 Happy 79th Independence Day — Jai Hind! Bharat Vigyan Yatra salutes the spirit of a Viksit Bharat 2047. 🇮🇳</div>
+    <button class="iday-close" id="idayClose" aria-label="Close">✕</button>
+  </div>
   <div class="news-ticker">
     <span class="nt-label"><span class="dot"></span>Latest</span>
     <div class="nt-track">
@@ -2240,6 +2289,38 @@ const root = document.documentElement;
   input.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') sendMessage(input.value); });
   suggestRow.querySelectorAll('button').forEach(btn=>{
     btn.addEventListener('click', ()=> sendMessage(btn.dataset.q));
+  });
+})();
+
+// ===== Independence Day banner (auto-shows for a 36-hour window) =====
+(function(){
+  const banner = document.getElementById('idayBanner');
+  const closeBtn = document.getElementById('idayClose');
+  const confettiHolder = document.getElementById('idayConfetti');
+  if(!banner) return;
+
+  // 36-hour celebration window: 15 Aug 2026 00:00 IST → 16 Aug 2026 12:00 IST
+  const windowStart = new Date('2026-08-15T00:00:00+05:30');
+  const windowEnd = new Date('2026-08-16T12:00:00+05:30');
+  const now = new Date();
+
+  if(now < windowStart || now > windowEnd) return; // outside the window, never show
+
+  banner.classList.add('show');
+
+  // scatter tricolor confetti particles
+  const colors = ['#FF9933', '#FFFFFF', '#138808'];
+  for(let i = 0; i < 24; i++){
+    const s = document.createElement('span');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.background = colors[i % 3];
+    s.style.animationDuration = (2 + Math.random() * 2) + 's';
+    s.style.animationDelay = (Math.random() * 3) + 's';
+    confettiHolder.appendChild(s);
+  }
+
+  closeBtn.addEventListener('click', ()=>{
+    banner.classList.remove('show');
   });
 })();
 
